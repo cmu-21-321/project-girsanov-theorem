@@ -65,3 +65,18 @@ opens a pull request if the update builds, or an issue if it doesn't. (Uncomment
   tick **Allow GitHub Actions to create and approve pull requests**.
 - To publish docs to GitHub Pages, set **Settings → Pages → Source** to "GitHub Actions" and
   uncomment the `docgen-action` line in `lean_action_ci.yml`.
+
+## Use of AI tools
+
+Parts of this project were developed with the help of AI assistants (e.g. Claude by
+Anthropic). We used them to:
+
+- explain background mathematics and Lean/Mathlib concepts,
+- search Mathlib for relevant lemmas and check their current names and signatures,
+- draft Lean statements, proof outlines, and documentation, and
+- help with project setup and tooling (Lean, Lake, git).
+
+Every theorem statement in this repository was reviewed by a team member to confirm
+it says what we intend, and every proof is checked by Lean: the project builds with
+`lake build`, so no result depends on trusting an AI's output. Statements that are not
+yet proved are marked with `sorry`.
