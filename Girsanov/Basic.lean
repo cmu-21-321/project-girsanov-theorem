@@ -69,13 +69,16 @@ variable (g : TimeGrid n) (θ : Fin n → ℝ) (ΔW : Fin n → Ω → ℝ)
 
 lemma measurable_girsanovDensity (hΔW : ∀ k, Measurable (ΔW k)) :
     Measurable (girsanovDensity g θ ΔW) := by
-  sorry
+  unfold girsanovDensity
+  fun_prop
 
+omit [MeasurableSpace Ω] in
 lemma girsanovDensity_ne_zero (ω : Ω) : girsanovDensity g θ ΔW ω ≠ 0 := by
-  sorry
+  simp [girsanovDensity, Real.exp_pos]
 
+omit [MeasurableSpace Ω] in
 lemma girsanovDensity_ne_top (ω : Ω) : girsanovDensity g θ ΔW ω ≠ ∞ := by
-  sorry
+  simp [girsanovDensity]
 
 -- Preme's part
 lemma girsanovDensity_eq_prod (ω : Ω) :
@@ -84,15 +87,17 @@ lemma girsanovDensity_eq_prod (ω : Ω) :
   sorry
 
 -- Hagen's part
+omit [MeasurableSpace Ω] in
 /-- With zero drift the density is `1`. -/
 @[simp]
 lemma girsanovDensity_zero : girsanovDensity g 0 ΔW = 1 := by
-  sorry
+  ext ω
+  simp [girsanovDensity]
 
 /-- With zero drift, `Q = P`. -/
 @[simp]
 lemma girsanovMeasure_zero (P : Measure Ω) : girsanovMeasure P g 0 ΔW = P := by
-  sorry
+  simp [girsanovMeasure]
 
 end API
 
