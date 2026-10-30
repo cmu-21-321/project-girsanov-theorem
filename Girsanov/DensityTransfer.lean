@@ -25,6 +25,9 @@ at a time.
 * Step 1. `Measure.pi μ = μ'` from agreement on boxes: `Measure.pi_eq`.
 * Step 2. `μ.withDensity f s = ∫⁻ a in s, f a ∂μ` for measurable `s`: `withDensity_apply`.
 * Step 2. A box with measurable sides is measurable: `MeasurableSet.univ_pi`.
+* Setup. `μ.withDensity f` is σ-finite when `μ` is and `f` never takes the value `∞`:
+  `SigmaFinite.withDensity_of_ne_top'`.
+* Step 3b. Law of one coordinate under `Measure.pi`: `Measure.pi_map_eval`.
 * Step 3. `(Measure.pi μ).restrict (univ.pi s) = Measure.pi fun i ↦ (μ i).restrict (s i)`:
   `Measure.restrict_pi_pi`.
 * Step 3. `∫⁻` of `∏ i, f i (x i)` against `Measure.pi` is `∏ i, ∫⁻ f i`: **not found**
@@ -32,8 +35,8 @@ at a time.
 
 Note on step 3: Mathlib has the Bochner version `MeasureTheory.integral_fintype_prod_eq_prod`
 but no `ℝ≥0∞` (`∫⁻`) version under an obvious name. Two routes:
-* For probability measures (all we need: every factor is a Gaussian), the coordinates are
-  independent under `Measure.pi` (`ProbabilityTheory.iIndepFun_pi`), so
+* For probability measures (assumed in the statement: every factor is a Gaussian),
+  the coordinates are independent under `Measure.pi` (`ProbabilityTheory.iIndepFun_pi`), so
   `ProbabilityTheory.lintegral_prod_eq_prod_lintegral_of_indepFun` splits the integral.
   Write the restricted integrand as `∏ i, (s i).indicator (f i) (x i)` first.
 * For general σ-finite `μ`, induct on `n` with `MeasureTheory.measurePreserving_piFinSuccAbove`
@@ -50,19 +53,24 @@ open scoped ENNReal NNReal
 #check @integral_fintype_prod_eq_prod
 #check @lintegral_prod_eq_prod_lintegral_of_indepFun
 #check @iIndepFun_pi
+#check @SigmaFinite.withDensity_of_ne_top'
+#check @Measure.pi_map_eval
 
 namespace Girsanov
 
-/-- A product density on a product measure splits into factor densities. -/
+/-- A product density on a product of probability measures splits into factor densities.
+Finiteness of each `f i` makes each reweighted factor σ-finite. -/
 theorem pi_withDensity {ι : Type*} [Fintype ι]
-    {μ : ι → Measure ℝ} [∀ i, SigmaFinite (μ i)]
-    {f : ι → ℝ → ℝ≥0∞} (hf : ∀ i, Measurable (f i))
-    [∀ i, SigmaFinite ((μ i).withDensity (f i))] :
+    {μ : ι → Measure ℝ} [∀ i, IsProbabilityMeasure (μ i)]
+    {f : ι → ℝ → ℝ≥0∞} (hf : ∀ i, Measurable (f i)) (hf_top : ∀ i x, f i x ≠ ∞) :
     (Measure.pi μ).withDensity (fun x ↦ ∏ i, f i (x i))
       = Measure.pi fun i ↦ (μ i).withDensity (f i) := by
+  have : ∀ i, SigmaFinite ((μ i).withDensity (f i)) :=
+    fun i ↦ SigmaFinite.withDensity_of_ne_top' (hf_top i)
   -- Step 1: `symm; refine Measure.pi_eq fun s hs ↦ ?_`
   -- Step 2: `rw [withDensity_apply _ (MeasurableSet.univ_pi hs)]`
   -- Step 3: `rw [Measure.restrict_pi_pi]`, then split the product integral
+  --   (`iIndepFun_pi`, `lintegral_prod_eq_prod_lintegral_of_indepFun`, `Measure.pi_map_eval`)
   -- Step 4: `simp_rw [withDensity_apply _ (hs _)]`
   sorry
 

@@ -18,12 +18,9 @@ Under the Girsanov measure `Q = girsanovMeasure P g θ ΔW`, the shifted increme
   `Measure.pi_map_pi`.
 * Shift. `(gaussianReal μ v).map (· + y) = gaussianReal (μ + y) v`:
   `gaussianReal_map_add_const`.
-* Factor. `exp (∑ i ∈ s, f i) = ∏ i ∈ s, exp (f i)`: `Real.exp_sum`.
-* Factor. `ofReal (∏ i ∈ s, f i) = ∏ i ∈ s, ofReal (f i)` when `0 ≤ f i`:
-  `ENNReal.ofReal_prod_of_nonneg`.
 * Probability. `Measure.pi` of probability measures is a probability measure:
-  instance `Measure.pi.instIsProbabilityMeasure` (this also proves the `incrementLaw`
-  instance in Basic.lean: `inferInstanceAs`, or `unfold incrementLaw; infer_instance`).
+  instance `Measure.pi.instIsProbabilityMeasure` (found automatically for `incrementLaw`,
+  which is an `abbrev`).
 
 `iIndepFun` takes the family and the measure only: `iIndepFun ΔW P`
 (no explicit `MeasurableSpace` argument in this Mathlib version).
@@ -34,7 +31,8 @@ Under the Girsanov measure `Q = girsanovMeasure P g θ ΔW`, the shifted increme
 2. `Q` reweights `P` by `canonicalDensity g θ ∘ (increment vector)`
    (`girsanovDensity_eq_canonicalDensity_comp`), so `map_withDensity_comp` turns
    the law under `Q` into `(incrementLaw g).withDensity (canonicalDensity g θ)`.
-3. Factor with `canonicalDensity_eq_prod` and split with `pi_withDensity`.
+3. `canonicalDensity` is already a product of `tiltWeight`s, so `incrementLaw_withDensity`
+   (an instance of `pi_withDensity`) splits it into one tilted Gaussian per step.
 4. Tilt each coordinate with `gaussianReal_withDensity_exp`: coordinate `k` is
    `𝒩(-θₖ Δtₖ, Δtₖ)`.
 5. Shift every coordinate by `θₖ Δtₖ` with `Measure.pi_map_pi` and
@@ -58,22 +56,14 @@ variable {n : ℕ}
 #check @gaussianReal_map_add_const
 #check @Real.exp_sum
 #check @ENNReal.ofReal_prod_of_nonneg
+#check @SigmaFinite.withDensity_of_ne_top'
+#check @Measure.pi_map_eval
 
-
-/-- The canonical Girsanov density factors coordinate by coordinate. (Week 2)
-
-This is the `Fin n → ℝ` version of `girsanovDensity_eq_prod` in Basic.lean.
-One of the two should be a one-line corollary of the other via
-`girsanovDensity_eq_canonicalDensity_comp`. -/
-theorem canonicalDensity_eq_prod (g : TimeGrid n) (θ x : Fin n → ℝ) :
-    canonicalDensity g θ x
-      = ∏ k, ENNReal.ofReal (Real.exp (-θ k * x k - θ k ^ 2 * (g.Δt k : ℝ) / 2)) := by
-  -- 1. Rewrite the exponent as `∑ k, (-θ k * x k - θ k ^ 2 * Δtₖ / 2)`
-  --    (`Finset.sum_sub_distrib`, `Finset.mul_sum`, `Finset.sum_neg_distrib`, then `ring_nf`
-  --    on each summand; a `congr 1` + `simp [Finset.sum_div, ...]` + `ring` usually does it).
-  -- 2. `Real.exp_sum` turns the exponential of the sum into a product.
-  -- 3. `ENNReal.ofReal_prod_of_nonneg` (every factor is `Real.exp _ ≥ 0`, by `positivity`).
-  sorry
+/-- The Girsanov-reweighted increment law splits into one tilted Gaussian per step. -/
+theorem incrementLaw_withDensity (g : TimeGrid n) (θ : Fin n → ℝ) :
+    (incrementLaw g).withDensity (canonicalDensity g θ)
+      = Measure.pi fun k ↦ (gaussianReal 0 (g.Δt k)).withDensity (tiltWeight (θ k) (g.Δt k)) :=
+  pi_withDensity (fun k ↦ measurable_tiltWeight _ _) (fun k ↦ tiltWeight_ne_top _ _)
 
 variable {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω} [IsProbabilityMeasure P]
   (g : TimeGrid n) {ΔW : Fin n → Ω → ℝ}
