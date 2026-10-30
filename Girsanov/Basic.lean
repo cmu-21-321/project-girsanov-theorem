@@ -105,27 +105,48 @@ end API
 
 -- Farin's part
 
-/-- The Girsanov density on the canonical space, where coordinate `k` is the
-`k`-th increment. -/
-noncomputable def canonicalDensity (g : TimeGrid n) (θ : Fin n → ℝ) (x : Fin n → ℝ) : ℝ≥0∞ :=
-  ENNReal.ofReal
-    (Real.exp (-(∑ k, θ k * x k) - (1 / 2) * ∑ k, θ k ^ 2 * (g.Δt k : ℝ)))
+/-- The one-step Girsanov weight `x ↦ exp(-θ x - θ² v / 2)`. Reweighting `𝒩(0, v)` by it
+gives `𝒩(-θ v, v)`. -/
+noncomputable def tiltWeight (θ : ℝ) (v : ℝ≥0) (x : ℝ) : ℝ≥0∞ :=
+  ENNReal.ofReal (Real.exp (-θ * x - θ ^ 2 * (v : ℝ) / 2))
 
-/-- The law of the increments under `P`: `⨂ₖ N(0, Δtₖ)`. -/
-noncomputable def incrementLaw (g : TimeGrid n) : Measure (Fin n → ℝ) :=
+/-- The Girsanov density on the canonical space `Fin n → ℝ`, where coordinate `k` is the
+`k`-th increment: the product of the one-step weights. -/
+noncomputable def canonicalDensity (g : TimeGrid n) (θ x : Fin n → ℝ) : ℝ≥0∞ :=
+  ∏ k, tiltWeight (θ k) (g.Δt k) (x k)
+
+/-- The law of the increments under `P`: `⨂ₖ 𝒩(0, Δtₖ)`. -/
+noncomputable abbrev incrementLaw (g : TimeGrid n) : Measure (Fin n → ℝ) :=
   Measure.pi fun k ↦ gaussianReal 0 (g.Δt k)
 
+@[fun_prop]
+lemma measurable_tiltWeight (θ : ℝ) (v : ℝ≥0) : Measurable (tiltWeight θ v) := by
+    unfold tiltWeight
+    fun_prop
+
+lemma tiltWeight_ne_zero (θ : ℝ) (v : ℝ≥0) (x : ℝ) : tiltWeight θ v x ≠ 0 := by
+    simp [tiltWeight, Real.exp_pos]
+
+lemma tiltWeight_ne_top (θ : ℝ) (v : ℝ≥0) (x : ℝ) : tiltWeight θ v x ≠ ∞ := by
+    simp [tiltWeight]
+
+@[fun_prop]
 lemma measurable_canonicalDensity (g : TimeGrid n) (θ : Fin n → ℝ) :
     Measurable (canonicalDensity g θ) := by
+    unfold canonicalDensity
+    fun_prop
+
+/-- The density in closed form: `exp(-∑ₖ θₖ xₖ - ½ ∑ₖ θₖ² Δtₖ)`. -/
+lemma canonicalDensity_eq_exp_sum (g : TimeGrid n) (θ x : Fin n → ℝ) :
+    canonicalDensity g θ x = ENNReal.ofReal
+      (Real.exp (-(∑ k, θ k * x k) - (1 / 2) * ∑ k, θ k ^ 2 * (g.Δt k : ℝ))) := by
   sorry
 
+omit [MeasurableSpace Ω] in
 /-- The abstract density is the canonical one composed with the increment vector. -/
 lemma girsanovDensity_eq_canonicalDensity_comp (g : TimeGrid n) (θ : Fin n → ℝ)
     (ΔW : Fin n → Ω → ℝ) :
     girsanovDensity g θ ΔW = canonicalDensity g θ ∘ (fun ω k ↦ ΔW k ω) := by
-  sorry
-
-instance (g : TimeGrid n) : IsProbabilityMeasure (incrementLaw g) := by
   sorry
 
 -- Hagen's part
@@ -135,6 +156,7 @@ def partialSums (x : Fin n → ℝ) (k : Fin n) : ℝ :=
 
 -- Farin's part
 lemma measurable_partialSums : Measurable (partialSums (n := n)) := by
-  sorry
+  unfold partialSums
+  fun_prop
 
 end Girsanov
