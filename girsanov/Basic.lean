@@ -121,18 +121,20 @@ noncomputable abbrev incrementLaw (g : TimeGrid n) : Measure (Fin n → ℝ) :=
 
 @[fun_prop]
 lemma measurable_tiltWeight (θ : ℝ) (v : ℝ≥0) : Measurable (tiltWeight θ v) := by
-  sorry
+    unfold tiltWeight
+    fun_prop
 
 lemma tiltWeight_ne_zero (θ : ℝ) (v : ℝ≥0) (x : ℝ) : tiltWeight θ v x ≠ 0 := by
-  sorry
+    simp [tiltWeight, Real.exp_pos]
 
 lemma tiltWeight_ne_top (θ : ℝ) (v : ℝ≥0) (x : ℝ) : tiltWeight θ v x ≠ ∞ := by
-  sorry
+    simp [tiltWeight]
 
 @[fun_prop]
 lemma measurable_canonicalDensity (g : TimeGrid n) (θ : Fin n → ℝ) :
     Measurable (canonicalDensity g θ) := by
-  sorry
+    unfold canonicalDensity
+    fun_prop
 
 /-- The density in closed form: `exp(-∑ₖ θₖ xₖ - ½ ∑ₖ θₖ² Δtₖ)`. -/
 lemma canonicalDensity_eq_exp_sum (g : TimeGrid n) (θ x : Fin n → ℝ) :
@@ -154,6 +156,7 @@ def partialSums (x : Fin n → ℝ) (k : Fin n) : ℝ :=
 
 -- Farin's part
 lemma measurable_partialSums : Measurable (partialSums (n := n)) := by
-  sorry
+  unfold partialSums
+  fun_prop
 
 end Girsanov
