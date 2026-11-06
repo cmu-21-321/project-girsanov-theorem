@@ -43,7 +43,7 @@ Here `incrementLaw g = ⨂ₖ 𝒩(0, Δtₖ)`. Status: stated, not yet proved.
 
 ## Proved statements
 
-Last updated: 2026-10-28 (week 2). Update this list every week.
+Last updated: 2026-11-06 (week 3). Update this list every week.
 
 [Girsanov/Basic.lean](Girsanov/Basic.lean):
 
@@ -52,6 +52,22 @@ Last updated: 2026-10-28 (week 2). Update this list every week.
 - `girsanovDensity_ne_top`
 - `girsanovDensity_zero`
 - `girsanovMeasure_zero`
+- `measurable_tiltWeight`
+- `tiltWeight_ne_zero`
+- `tiltWeight_ne_top`
+- `measurable_canonicalDensity`
+- `canonicalDensity_eq_exp_sum`
+- `girsanovDensity_eq_canonicalDensity_comp`
+- `measurable_partialSums`
+
+[Girsanov/DensityTransfer.lean](Girsanov/DensityTransfer.lean):
+
+- `pi_withDensity`
+
+[Girsanov/FiniteTime.lean](Girsanov/FiniteTime.lean):
+
+- `incrementLaw_withDensity`
+- `map_increments_eq_pi`
 
 Every other statement is still `sorry`.
 
