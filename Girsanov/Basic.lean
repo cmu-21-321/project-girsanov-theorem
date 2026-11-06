@@ -105,13 +105,14 @@ end API
 
 -- Farin's part
 
-/-- The one-step Girsanov weight `x ↦ exp(-θ x - θ² v / 2)`. Reweighting `𝒩(0, v)` by it
-gives `𝒩(-θ v, v)`. -/
+/-- The Girsanov weight for one step: `x ↦ exp(-θ x - θ² v / 2)`.
+This weight changes `𝒩(0, v)` into `𝒩(-θ v, v)`. -/
 noncomputable def tiltWeight (θ : ℝ) (v : ℝ≥0) (x : ℝ) : ℝ≥0∞ :=
   ENNReal.ofReal (Real.exp (-θ * x - θ ^ 2 * (v : ℝ) / 2))
 
-/-- The Girsanov density on the canonical space `Fin n → ℝ`, where coordinate `k` is the
-`k`-th increment: the product of the one-step weights. -/
+/-- The Girsanov density on the canonical space `Fin n → ℝ`.
+Coordinate `k` is the increment of step `k`.
+The density is the product of the weights of all steps. -/
 noncomputable def canonicalDensity (g : TimeGrid n) (θ x : Fin n → ℝ) : ℝ≥0∞ :=
   ∏ k, tiltWeight (θ k) (g.Δt k) (x k)
 
@@ -140,14 +141,28 @@ lemma measurable_canonicalDensity (g : TimeGrid n) (θ : Fin n → ℝ) :
 lemma canonicalDensity_eq_exp_sum (g : TimeGrid n) (θ x : Fin n → ℝ) :
     canonicalDensity g θ x = ENNReal.ofReal
       (Real.exp (-(∑ k, θ k * x k) - (1 / 2) * ∑ k, θ k ^ 2 * (g.Δt k : ℝ))) := by
-  sorry
+  unfold canonicalDensity tiltWeight
+  -- Move `ofReal` outside the product. This is correct because each factor `exp _` is `≥ 0`.
+  rw [← ENNReal.ofReal_prod_of_nonneg (fun k _ ↦ by positivity)]
+  -- Change the product of exponentials into the exponential of a sum.
+  rw [← Real.exp_sum]
+  -- Compare the two exponents.
+  congr 2
+  -- Change the right side into one sum `∑ k, (…)`.
+  rw [Finset.mul_sum, ← Finset.sum_neg_distrib, ← Finset.sum_sub_distrib]
+  -- Compare the two sums term by term.
+  refine Finset.sum_congr rfl fun k _ ↦ ?_
+  ring
 
 omit [MeasurableSpace Ω] in
-/-- The abstract density is the canonical one composed with the increment vector. -/
+/-- The abstract density is the canonical density composed with the increment vector. -/
 lemma girsanovDensity_eq_canonicalDensity_comp (g : TimeGrid n) (θ : Fin n → ℝ)
     (ΔW : Fin n → Ω → ℝ) :
     girsanovDensity g θ ΔW = canonicalDensity g θ ∘ (fun ω k ↦ ΔW k ω) := by
-  sorry
+  funext ω
+  -- Write the canonical density in closed form. Then the two sides are the same formula.
+  rw [Function.comp_apply, canonicalDensity_eq_exp_sum]
+  rfl
 
 -- Hagen's part
 /-- The partial-sum map sending increments to the walk `Wₖ = ∑_{j ≤ k} ΔWⱼ`. -/
