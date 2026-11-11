@@ -10,7 +10,8 @@ This file gives the basic objects for the finite-time Girsanov theorem.
 * `girsanovMeasure` is the new measure `Q`. It has the Girsanov density with respect to `P`.
 * `canonicalDensity` is the Girsanov density on the space `Fin n → ℝ`.
 * `incrementLaw` is the law of the increments under `P`.
-* `partialSums` changes a vector of increments into a walk.
+* The walk is Mathlib's `Fin.partialSum` of the increments; `measurable_partialSum` says
+  that this map is measurable.
 -/
 
 open MeasureTheory ProbabilityTheory
@@ -31,6 +32,7 @@ structure TimeGrid (n : ℕ) where
   /-- The first time is `0`. -/
   zero : t 0 = 0
 
+
 namespace TimeGrid
 
 variable {n : ℕ} (g : TimeGrid n)
@@ -43,25 +45,52 @@ variance. -/
 noncomputable def Δt (k : Fin n) : ℝ≥0 :=
   (g.t k.succ - g.t k.castSucc).toNNReal
 
+/-- Two consecutive times are in order: `t_k < t_{k+1}`. -/
+lemma t_castSucc_lt_t_succ (k : Fin n) : g.t k.castSucc < g.t k.succ :=
+  -- If Lean complains here, use `(Fin.castSucc_lt_succ k)` or `(by simp [Fin.lt_def])`.
+  g.strictMono (Fin.castSucc_lt_succ ..)
+
 /-- In `ℝ`, the increment `Δtₖ` is equal to `t_{k+1} - t_k`. -/
-lemma coe_Δt (k : Fin n) : (g.Δt k : ℝ) = g.t k.succ - g.t k.castSucc := by
-  sorry
+lemma coe_Δt (k : Fin n) : (g.Δt k : ℝ) = g.t k.succ - g.t k.castSucc :=
+  -- `toNNReal` does nothing to a number that is `≥ 0`.
+  Real.coe_toNNReal _ (sub_nonneg.2 (g.t_castSucc_lt_t_succ k).le)
 
 /-- Each time increment is more than `0`. -/
 lemma Δt_pos (k : Fin n) : 0 < g.Δt k := by
-  sorry
+  -- Move the goal to `ℝ`, where `coe_Δt` describes `Δtₖ`.
+  rw [← NNReal.coe_pos, coe_Δt, sub_pos]
+  exact g.t_castSucc_lt_t_succ k
 
 /-- Each time increment is not `0`. -/
-lemma Δt_ne_zero (k : Fin n) : g.Δt k ≠ 0 := by
-  sorry
+lemma Δt_ne_zero (k : Fin n) : g.Δt k ≠ 0 :=
+  (g.Δt_pos k).ne'
+
+/-- A telescoping sum over `Fin`: `∑ₖ (f (k+1) - f k) = f m - f 0`. -/
+lemma sum_succ_sub_castSucc {m : ℕ} (f : Fin (m + 1) → ℝ) :
+    ∑ k : Fin m, (f k.succ - f k.castSucc) = f (Fin.last m) - f 0 := by
+  induction m with
+  | zero => simp
+  | succ m ih =>
+    -- Split off the last term of the sum.
+    rw [Fin.sum_univ_castSucc]
+    -- The induction hypothesis, used for `f` restricted to the first `m + 1` times.
+    have h := ih (fun i ↦ f i.castSucc)
+    -- `k.castSucc.succ` and `k.succ.castSucc` are the same element; write both the same way.
+    simp only [Fin.succ_castSucc] at h ⊢
+    rw [h]
+    simp only [Fin.succ_last, Fin.castSucc_zero, Nat.succ_eq_add_one]
+    ring
 
 /-- The sum of all the time increments is equal to the final time `T`. -/
 lemma sum_Δt : ∑ k, (g.Δt k : ℝ) = g.T := by
-  sorry
+  simp_rw [coe_Δt]
+  rw [sum_succ_sub_castSucc, g.zero, sub_zero, T]
 
 /-- The final time `T` is not less than `0`. -/
 lemma T_nonneg : 0 ≤ g.T := by
-  sorry
+  -- `T` is a sum of numbers that are `≥ 0`.
+  rw [← g.sum_Δt]
+  positivity
 
 end TimeGrid
 
@@ -103,14 +132,6 @@ omit [MeasurableSpace Ω] in
 lemma girsanovDensity_ne_top (ω : Ω) : girsanovDensity g θ ΔW ω ≠ ∞ := by
   simp [girsanovDensity]
 
--- Author: Preme.
-/-- The Girsanov density is equal to a product. Each factor of the product has one time
-step. -/
-lemma girsanovDensity_eq_prod (ω : Ω) :
-    girsanovDensity g θ ΔW ω =
-      ∏ k, ENNReal.ofReal (Real.exp (-θ k * ΔW k ω - θ k ^ 2 * (g.Δt k : ℝ) / 2)) := by
-  sorry
-
 -- Author: Hagen.
 omit [MeasurableSpace Ω] in
 /-- If the drift is `0`, then the density is `1`. -/
@@ -130,7 +151,6 @@ end API
 
 -- Author: Farin.
 
-<<<<<<< Updated upstream
 /-- The Girsanov weight for one step: `x ↦ exp(-θ x - θ² v / 2)`.
 This weight changes `𝒩(0, v)` into `𝒩(-θ v, v)`. -/
 noncomputable def tiltWeight (θ : ℝ) (v : ℝ≥0) (x : ℝ) : ℝ≥0∞ :=
@@ -139,15 +159,6 @@ noncomputable def tiltWeight (θ : ℝ) (v : ℝ≥0) (x : ℝ) : ℝ≥0∞ :=
 /-- The Girsanov density on the canonical space `Fin n → ℝ`.
 Coordinate `k` is the increment of step `k`.
 The density is the product of the weights of all steps. -/
-=======
-/-- The Girsanov weight for one time step: `x ↦ exp(-θ x - θ² v / 2)`. If you multiply
-`𝒩(0, v)` by this weight, you get `𝒩(-θ v, v)`. -/
-noncomputable def tiltWeight (θ : ℝ) (v : ℝ≥0) (x : ℝ) : ℝ≥0∞ :=
-  ENNReal.ofReal (Real.exp (-θ * x - θ ^ 2 * (v : ℝ) / 2))
-
-/-- The Girsanov density on the canonical space `Fin n → ℝ`. Coordinate `k` is the
-increment `k`. The density is the product of the weights for each time step. -/
->>>>>>> Stashed changes
 noncomputable def canonicalDensity (g : TimeGrid n) (θ x : Fin n → ℝ) : ℝ≥0∞ :=
   ∏ k, tiltWeight (θ k) (g.Δt k) (x k)
 
@@ -194,12 +205,8 @@ lemma canonicalDensity_eq_exp_sum (g : TimeGrid n) (θ x : Fin n → ℝ) :
   ring
 
 omit [MeasurableSpace Ω] in
-<<<<<<< Updated upstream
-/-- The abstract density is the canonical density composed with the increment vector. -/
-=======
 /-- The Girsanov density on `Ω` is equal to the canonical density of the increment vector.
 -/
->>>>>>> Stashed changes
 lemma girsanovDensity_eq_canonicalDensity_comp (g : TimeGrid n) (θ : Fin n → ℝ)
     (ΔW : Fin n → Ω → ℝ) :
     girsanovDensity g θ ΔW = canonicalDensity g θ ∘ (fun ω k ↦ ΔW k ω) := by
@@ -208,16 +215,37 @@ lemma girsanovDensity_eq_canonicalDensity_comp (g : TimeGrid n) (θ : Fin n → 
   rw [Function.comp_apply, canonicalDensity_eq_exp_sum]
   rfl
 
--- Author: Hagen.
-/-- The partial sums of the increments. This map changes the increments into the walk
-`Wₖ = ∑_{j ≤ k} ΔWⱼ`. -/
-def partialSums (x : Fin n → ℝ) (k : Fin n) : ℝ :=
-  ∑ j : Fin n with j ≤ k, x j
+-- Author: Preme.
+omit [MeasurableSpace Ω] in
+/-- The Girsanov density is equal to a product. Each factor of the product has one time
+step. -/
+lemma girsanovDensity_eq_prod (g : TimeGrid n) (θ : Fin n → ℝ) (ΔW : Fin n → Ω → ℝ)
+    (ω : Ω) :
+    girsanovDensity g θ ΔW ω =
+      ∏ k, ENNReal.ofReal (Real.exp (-θ k * ΔW k ω - θ k ^ 2 * (g.Δt k : ℝ) / 2)) :=
+  congrFun (girsanovDensity_eq_canonicalDensity_comp g θ ΔW) ω
 
--- Author: Farin.
-/-- The partial-sum map is measurable. -/
-lemma measurable_partialSums : Measurable (partialSums (n := n)) := by
-  unfold partialSums
-  fun_prop
+/-! ### The walk
+
+We use Mathlib's `Fin.partialSum` for the walk. For increments `x : Fin n → ℝ`,
+`Fin.partialSum x : Fin (n + 1) → ℝ` is the walk at the times `t₀, …, tₙ`:
+`Fin.partialSum x 0 = 0` and `Fin.partialSum x i.succ = Fin.partialSum x i.castSucc + x i`. -/
+
+-- Author: Hagen, Farin, Preme.
+/-- The partial-sum map, which changes increments into the walk, is measurable. -/
+@[fun_prop]
+lemma measurable_partialSum :
+    Measurable (Fin.partialSum : (Fin n → ℝ) → Fin (n + 1) → ℝ) := by
+  -- A map into a product is measurable if each coordinate is measurable.
+  rw [measurable_pi_iff]
+  intro i
+  -- Induction on the time index: `W₀ = 0`, and `W_{i+1} = W_i + xᵢ`.
+  induction i using Fin.induction with
+  | zero =>
+    simp only [Fin.partialSum_zero]
+    exact measurable_const
+  | succ j ih =>
+    simp only [Fin.partialSum_succ]
+    exact ih.add (measurable_pi_apply j)
 
 end Girsanov
