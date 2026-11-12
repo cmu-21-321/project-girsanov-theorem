@@ -48,11 +48,12 @@ lemma gaussianPDFReal_mul_exp (θ : ℝ) (v : ℝ≥0) (x : ℝ) :
 
 /-- Tilting `𝒩(0, v)` by `tiltWeight θ v` gives `𝒩(-θ v, v)`. -/
 lemma gaussianReal_withDensity_exp (θ : ℝ) {v : ℝ≥0} (hv : v ≠ 0) :
-    (gaussianReal 0 v).withDensity (tiltWeight θ v) = gaussianReal (-θ * v) v := by
+    (gaussianReal 0 v).withDensity (fun x ↦ ENNReal.ofReal (tiltWeight θ v x))
+      = gaussianReal (-θ * v) v := by
   -- Follow the paper plan above: steps 1 and 2 are `rw`s, step 3 is `congr` + `funext`,
   -- step 4 is `gaussianPDFReal_mul_exp`. Measurability goals: `fun_prop`.
    rw [gaussianReal_of_var_ne_zero 0 hv, gaussianReal_of_var_ne_zero (-θ * v) hv]
-   rw [← withDensity_mul _ (measurable_gaussianPDF _ _) (measurable_tiltWeight _ _)]
+   rw [← withDensity_mul _ (measurable_gaussianPDF _ _) (by fun_prop)]
    congr 1
    funext x
    simp only [Pi.mul_apply, gaussianPDF, tiltWeight]

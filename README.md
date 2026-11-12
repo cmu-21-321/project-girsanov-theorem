@@ -27,38 +27,56 @@ theorem girsanov_increments (hmeas : ∀ k, Measurable (ΔW k)) (hind : iIndepFu
       = incrementLaw g
 ```
 
-Here `incrementLaw g = ⨂ₖ 𝒩(0, Δtₖ)`. Status: stated, not yet proved.
+Here `incrementLaw g = ⨂ₖ 𝒩(0, Δtₖ)`. Status: proved (week 4).
+
+It is a corollary of a self-contained version, `Girsanov.girsanov_gaussian_pi`, which uses only
+Mathlib notions (any finite index set, any variances `vₖ ≥ 0`, `Measure.withDensity` and
+`Measure.pi`) and none of our own definitions:
+
+```lean
+theorem girsanov_gaussian_pi (v : ι → ℝ≥0) (hmeas : ∀ k, Measurable (X k))
+    (hind : iIndepFun X P) (hlaw : ∀ k, P.map (X k) = gaussianReal 0 (v k)) (θ : ι → ℝ) :
+    (P.withDensity fun ω ↦ ENNReal.ofReal
+        (Real.exp (-(∑ k, θ k * X k ω) - (1 / 2) * ∑ k, θ k ^ 2 * (v k : ℝ)))).map
+        (fun ω k ↦ X k ω + θ k * (v k : ℝ))
+      = Measure.pi fun k ↦ gaussianReal 0 (v k)
+```
 
 ## File map
 
 | File | Contents | Owner |
 |---|---|---|
 | [Girsanov/Basic.lean](Girsanov/Basic.lean) | Time grid, Girsanov density and measure | Preme |
-| | Density API (measurability, positivity, zero drift), `partialSums` | Hagen |
+| | Density API (measurability, positivity, zero drift), `measurable_partialSum` | Hagen |
 | | Canonical density on `Fin n → ℝ`, `incrementLaw` | Farin |
 | [Girsanov/DensityTransfer.lean](Girsanov/DensityTransfer.lean) | Product densities on product measures (`pi_withDensity`) | Farin |
 | [Girsanov/SingleTime.lean](Girsanov/SingleTime.lean) | `map_withDensity_comp`, single-time Girsanov, `Q` is a probability measure | Hagen |
 | [Girsanov/FiniteTime.lean](Girsanov/FiniteTime.lean) | Factoring the density, law of the increments, `girsanov_increments` | Farin |
-| `Girsanov/GaussianTilt.lean` | `gaussianReal_withDensity_exp` (planned, not created yet) | unassigned |
+| [Girsanov/GaussianTilt.lean](Girsanov/GaussianTilt.lean) | Gaussian tilt lemma `gaussianReal_withDensity_exp` | Preme |
 
 ## Proved statements
 
-Last updated: 2026-11-06 (week 3). Update this list every week.
+Last updated: 2026-11-12 (week 4). Update this list every week.
 
 [Girsanov/Basic.lean](Girsanov/Basic.lean):
 
 - `measurable_girsanovDensity`
-- `girsanovDensity_ne_zero`
-- `girsanovDensity_ne_top`
+- `girsanovDensity_pos`
 - `girsanovDensity_zero`
 - `girsanovMeasure_zero`
 - `measurable_tiltWeight`
-- `tiltWeight_ne_zero`
-- `tiltWeight_ne_top`
+- `tiltWeight_pos`
 - `measurable_canonicalDensity`
 - `canonicalDensity_eq_exp_sum`
 - `girsanovDensity_eq_canonicalDensity_comp`
-- `measurable_partialSums`
+- `girsanovDensity_eq_prod`
+- `measurable_partialSum`
+- `TimeGrid.Δt_pos`, `TimeGrid.sum_Δt`, `TimeGrid.T_nonneg`
+
+[Girsanov/GaussianTilt.lean](Girsanov/GaussianTilt.lean):
+
+- `gaussianPDFReal_mul_exp`
+- `gaussianReal_withDensity_exp`
 
 [Girsanov/DensityTransfer.lean](Girsanov/DensityTransfer.lean):
 
@@ -68,6 +86,15 @@ Last updated: 2026-11-06 (week 3). Update this list every week.
 
 - `incrementLaw_withDensity`
 - `map_increments_eq_pi`
+- `prod_tiltWeight`
+- `gaussianReal_withDensity_tiltWeight`
+- `girsanov_gaussian_pi`
+- `girsanov_increments`
+- example: `n = 1` agrees with the single-time theorem
+
+[Girsanov/SingleTime.lean](Girsanov/SingleTime.lean):
+
+- `map_withDensity_comp`
 
 Every other statement is still `sorry`.
 

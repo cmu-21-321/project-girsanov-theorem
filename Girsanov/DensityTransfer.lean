@@ -48,22 +48,13 @@ This condition is true for us, because each factor is a Gaussian.
 For a general σ-finite `μ`, use induction on `n` with
 `MeasureTheory.measurePreserving_piFinSuccAbove` and `MeasureTheory.lintegral_prod_mul`.
 This method is more work. Use it only if we send the lemma to Mathlib.
-The `#check` lines for `Measure.restrict_pi_pi` and `Measure.pi_map_eval` below are from
-the first plan. The final proof does not use them.
+The first plan used `Measure.restrict_pi_pi` and `Measure.pi_map_eval`.
+The final proof does not use them.
 -/
 
 open MeasureTheory ProbabilityTheory
 open scoped ENNReal NNReal
 
-#check @Measure.pi_eq
-#check @withDensity_apply
-#check @MeasurableSet.univ_pi
-#check @Measure.restrict_pi_pi
-#check @integral_fintype_prod_eq_prod
-#check @lintegral_prod_eq_prod_lintegral_of_indepFun
-#check @iIndepFun_pi
-#check @SigmaFinite.withDensity_of_ne_top'
-#check @Measure.pi_map_eval
 
 namespace Girsanov
 

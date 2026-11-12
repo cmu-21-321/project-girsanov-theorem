@@ -57,7 +57,12 @@ is the same as pushing forward first and reweighting the law of `X`. -/
 theorem map_withDensity_comp (P : Measure Ω) {X : Ω → α} (hX : Measurable X)
     {f : α → ℝ≥0∞} (hf : Measurable f) :
     (P.withDensity (f ∘ X)).map X = (P.map X).withDensity f := by
-  sorry
+  -- Two measures are equal if they agree on every measurable set `s`.
+  ext s hs
+  -- Both sides are integrals of the density: over `X ⁻¹' s` against `P`, and over `s`
+  -- against the law of `X`. Change of variables makes them equal.
+  rw [Measure.map_apply hX hs, withDensity_apply _ (hX hs), withDensity_apply _ hs,
+    setLIntegral_map hs hf hX, Function.comp_def]
 
 /-- **Girsanov at a single time.** If `W ∼ 𝒩(0, T)` under `P`, then under
 `Q = P.withDensity (exp(-θ W - θ² T / 2))` the shifted variable `W + θ T` is `𝒩(0, T)`. -/

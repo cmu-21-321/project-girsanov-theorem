@@ -100,16 +100,18 @@ variable {Ω : Type*} [MeasurableSpace Ω] {n : ℕ}
 
 -- Author: Preme.
 
-/-- The Girsanov density `exp(-∑ₖ θₖ ΔWₖ - ½ ∑ₖ θₖ² Δtₖ)`. -/
+/-- The Girsanov density `Z = exp(-∑ₖ θₖ ΔWₖ - ½ ∑ₖ θₖ² Δtₖ)`. It is a real number, as on
+paper. Only `girsanovMeasure` changes it into `ℝ≥0∞`, because `Measure.withDensity` needs a
+density in `ℝ≥0∞`. -/
 noncomputable def girsanovDensity (g : TimeGrid n) (θ : Fin n → ℝ) (ΔW : Fin n → Ω → ℝ)
-    (ω : Ω) : ℝ≥0∞ :=
-  ENNReal.ofReal
-    (Real.exp (-(∑ k, θ k * ΔW k ω) - (1 / 2) * ∑ k, θ k ^ 2 * (g.Δt k : ℝ)))
+    (ω : Ω) : ℝ :=
+  Real.exp (-(∑ k, θ k * ΔW k ω) - (1 / 2) * ∑ k, θ k ^ 2 * (g.Δt k : ℝ))
 
-/-- The Girsanov measure `Q`. The measure `Q` has the Girsanov density with respect to `P`. -/
+/-- The Girsanov measure `Q`. The measure `Q` has the Girsanov density with respect to `P`:
+`Q(A) = E_P[Z · 1_A]`. -/
 noncomputable def girsanovMeasure (P : Measure Ω) (g : TimeGrid n) (θ : Fin n → ℝ)
     (ΔW : Fin n → Ω → ℝ) : Measure Ω :=
-  P.withDensity (girsanovDensity g θ ΔW)
+  P.withDensity fun ω ↦ ENNReal.ofReal (girsanovDensity g θ ΔW ω)
 
 -- Author: Hagen.
 section API
@@ -123,14 +125,9 @@ lemma measurable_girsanovDensity (hΔW : ∀ k, Measurable (ΔW k)) :
   fun_prop
 
 omit [MeasurableSpace Ω] in
-/-- The Girsanov density is not `0` at a point. -/
-lemma girsanovDensity_ne_zero (ω : Ω) : girsanovDensity g θ ΔW ω ≠ 0 := by
-  simp [girsanovDensity, Real.exp_pos]
-
-omit [MeasurableSpace Ω] in
-/-- The Girsanov density is not `∞` at a point. -/
-lemma girsanovDensity_ne_top (ω : Ω) : girsanovDensity g θ ΔW ω ≠ ∞ := by
-  simp [girsanovDensity]
+/-- The Girsanov density is positive. -/
+lemma girsanovDensity_pos (ω : Ω) : 0 < girsanovDensity g θ ΔW ω :=
+  Real.exp_pos _
 
 -- Author: Hagen.
 omit [MeasurableSpace Ω] in
@@ -153,13 +150,13 @@ end API
 
 /-- The Girsanov weight for one step: `x ↦ exp(-θ x - θ² v / 2)`.
 This weight changes `𝒩(0, v)` into `𝒩(-θ v, v)`. -/
-noncomputable def tiltWeight (θ : ℝ) (v : ℝ≥0) (x : ℝ) : ℝ≥0∞ :=
-  ENNReal.ofReal (Real.exp (-θ * x - θ ^ 2 * (v : ℝ) / 2))
+noncomputable def tiltWeight (θ : ℝ) (v : ℝ≥0) (x : ℝ) : ℝ :=
+  Real.exp (-θ * x - θ ^ 2 * (v : ℝ) / 2)
 
 /-- The Girsanov density on the canonical space `Fin n → ℝ`.
 Coordinate `k` is the increment of step `k`.
 The density is the product of the weights of all steps. -/
-noncomputable def canonicalDensity (g : TimeGrid n) (θ x : Fin n → ℝ) : ℝ≥0∞ :=
+noncomputable abbrev canonicalDensity (g : TimeGrid n) (θ x : Fin n → ℝ) : ℝ :=
   ∏ k, tiltWeight (θ k) (g.Δt k) (x k)
 
 /-- The law of the increments under `P`. This law is the product measure `⨂ₖ 𝒩(0, Δtₖ)`. -/
@@ -172,13 +169,9 @@ lemma measurable_tiltWeight (θ : ℝ) (v : ℝ≥0) : Measurable (tiltWeight θ
     unfold tiltWeight
     fun_prop
 
-/-- The weight for one time step is not `0`. -/
-lemma tiltWeight_ne_zero (θ : ℝ) (v : ℝ≥0) (x : ℝ) : tiltWeight θ v x ≠ 0 := by
-    simp [tiltWeight, Real.exp_pos]
-
-/-- The weight for one time step is not `∞`. -/
-lemma tiltWeight_ne_top (θ : ℝ) (v : ℝ≥0) (x : ℝ) : tiltWeight θ v x ≠ ∞ := by
-    simp [tiltWeight]
+/-- The weight for one time step is positive. -/
+lemma tiltWeight_pos (θ : ℝ) (v : ℝ≥0) (x : ℝ) : 0 < tiltWeight θ v x :=
+  Real.exp_pos _
 
 /-- The canonical density is measurable. -/
 @[fun_prop]
@@ -189,15 +182,13 @@ lemma measurable_canonicalDensity (g : TimeGrid n) (θ : Fin n → ℝ) :
 
 /-- The canonical density is equal to `exp(-∑ₖ θₖ xₖ - ½ ∑ₖ θₖ² Δtₖ)`. -/
 lemma canonicalDensity_eq_exp_sum (g : TimeGrid n) (θ x : Fin n → ℝ) :
-    canonicalDensity g θ x = ENNReal.ofReal
-      (Real.exp (-(∑ k, θ k * x k) - (1 / 2) * ∑ k, θ k ^ 2 * (g.Δt k : ℝ))) := by
+    canonicalDensity g θ x =
+      Real.exp (-(∑ k, θ k * x k) - (1 / 2) * ∑ k, θ k ^ 2 * (g.Δt k : ℝ)) := by
   unfold canonicalDensity tiltWeight
-  -- Move `ofReal` outside the product. This is correct because each factor `exp _` is `≥ 0`.
-  rw [← ENNReal.ofReal_prod_of_nonneg (fun k _ ↦ by positivity)]
   -- Change the product of exponentials into the exponential of a sum.
   rw [← Real.exp_sum]
   -- Compare the two exponents.
-  congr 2
+  congr 1
   -- Change the right side into one sum `∑ k, (…)`.
   rw [Finset.mul_sum, ← Finset.sum_neg_distrib, ← Finset.sum_sub_distrib]
   -- Compare the two sums term by term.
@@ -222,7 +213,7 @@ step. -/
 lemma girsanovDensity_eq_prod (g : TimeGrid n) (θ : Fin n → ℝ) (ΔW : Fin n → Ω → ℝ)
     (ω : Ω) :
     girsanovDensity g θ ΔW ω =
-      ∏ k, ENNReal.ofReal (Real.exp (-θ k * ΔW k ω - θ k ^ 2 * (g.Δt k : ℝ) / 2)) :=
+      ∏ k, Real.exp (-θ k * ΔW k ω - θ k ^ 2 * (g.Δt k : ℝ) / 2) :=
   congrFun (girsanovDensity_eq_canonicalDensity_comp g θ ΔW) ω
 
 /-! ### The walk
