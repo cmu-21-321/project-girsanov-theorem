@@ -2,9 +2,9 @@ import Girsanov.Basic
 
 /-!
 # The Gaussian tilt lemma
-
-Reweighting `𝒩(0, v)` by the one-step Girsanov weight `tiltWeight θ v` gives `𝒩(-θ v, v)`.
-Hagen's single-time theorem and Farin's `girsanov_increments` both use this lemma.
+The lemma states that multiplying a Gaussian probability distribution `𝒩(0, v)`
+by the one-step Girsanov weight `tiltWeight θ v` produces a shifted mean & unchanged
+covariance `𝒩(-θ v, v)`. This lemma is used in the single-time theorem and girsanov_increments.
 
 ## Paper plan for `gaussianReal_withDensity_exp`
 
@@ -14,17 +14,7 @@ Hagen's single-time theorem and Farin's `girsanov_increments` both use this lemm
    Both factors are `≥ 0`, so `ENNReal.ofReal` moves outside the product.
 4. The real identity is `gaussianPDFReal_mul_exp`: complete the square,
    `-x²/(2v) - θx - θ²v/2 = -(x + θv)²/(2v)`.
-
-| Step | Fact | Mathlib name (check with `#check`) |
-|---|---|---|
-| 1 | `gaussianReal μ v = volume.withDensity (gaussianPDF μ v)` for `v ≠ 0` | `gaussianReal_of_var_ne_zero` |
-| 2 | `μ.withDensity (f * g) = (μ.withDensity f).withDensity g` | `withDensity_mul` |
-| 3 | `ofReal (a * b) = ofReal a * ofReal b` for `0 ≤ a` | `ENNReal.ofReal_mul` |
-| 3 | `0 ≤ gaussianPDFReal μ v x` | `gaussianPDFReal_nonneg` |
-| 4 | formula for `gaussianPDFReal` | `gaussianPDFReal_def` |
-| 4 | `exp a * exp b = exp (a + b)` | `Real.exp_add` |
 -/
-
 open MeasureTheory ProbabilityTheory
 open scoped ENNReal NNReal
 
@@ -46,27 +36,19 @@ lemma gaussianPDFReal_mul_exp (θ : ℝ) (v : ℝ≥0) (x : ℝ) :
     field_simp
     ring
 
-
 /-- Tilting `𝒩(0, v)` by `tiltWeight θ v` gives `𝒩(-θ v, v)`. -/
-lemma gaussianReal_withDensity_exp (θ : ℝ) {v : ℝ≥0} (hv : v ≠ 0) :
-    (gaussianReal 0 v).withDensity (fun x ↦ ENNReal.ofReal (tiltWeight θ v x))
-      = gaussianReal (-θ * v) v := by
-      rw [gaussianReal_of_var_ne_zero 0 hv, gaussianReal_of_var_ne_zero (-θ * v) hv]
-      rw [← withDensity_mul _ (measurable_gaussianPDF _ _) (by fun_prop)]
-      congr 1
-      funext x
-      simp only [Pi.mul_apply, gaussianPDF, tiltWeight]
-      rw [← ENNReal.ofReal_mul (gaussianPDFReal_nonneg _ _ _)]
-      rw [gaussianPDFReal_mul_exp]
-
-/-- The Gaussian tilt for every variance. If `v = 0`, both sides are the point mass at `0`.
-Otherwise this is `gaussianReal_withDensity_exp`. -/
 lemma gaussianReal_withDensity_tiltWeight (θ : ℝ) (v : ℝ≥0) :
     (gaussianReal 0 v).withDensity (fun x ↦ ENNReal.ofReal (tiltWeight θ v x))
       = gaussianReal (-θ * v) v := by
   by_cases hv : v = 0
   · subst hv
     simp [gaussianReal_zero_var, dirac_withDensity, tiltWeight]
-  · exact gaussianReal_withDensity_exp θ hv
+  · rw [gaussianReal_of_var_ne_zero 0 hv, gaussianReal_of_var_ne_zero (-θ * v) hv]
+    rw [← withDensity_mul _ (measurable_gaussianPDF _ _) (by fun_prop)]
+    congr 1
+    funext x
+    simp only [Pi.mul_apply, gaussianPDF, tiltWeight]
+    rw [← ENNReal.ofReal_mul (gaussianPDFReal_nonneg _ _ _)]
+    rw [gaussianPDFReal_mul_exp]
 
 end Girsanov
