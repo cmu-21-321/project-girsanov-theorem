@@ -38,7 +38,8 @@ lemma gaussianPDFReal_mul_exp (θ : ℝ) (v : ℝ≥0) (x : ℝ) :
     gaussianPDFReal 0 v x * Real.exp (-θ * x - θ ^ 2 * (v : ℝ) / 2)
       = gaussianPDFReal (-θ * v) v x := by
   by_cases hv : v = 0
-  · simp [gaussianPDFReal, hv]
+  · simp only [gaussianPDFReal, hv, NNReal.coe_zero, mul_zero, Real.sqrt_zero, inv_zero, sub_zero,
+    div_zero, Real.exp_zero, mul_one, neg_mul, zero_div, zero_mul]
   · unfold gaussianPDFReal
     rw [mul_assoc, ← Real.exp_add]
     congr 2
@@ -50,14 +51,22 @@ lemma gaussianPDFReal_mul_exp (θ : ℝ) (v : ℝ≥0) (x : ℝ) :
 lemma gaussianReal_withDensity_exp (θ : ℝ) {v : ℝ≥0} (hv : v ≠ 0) :
     (gaussianReal 0 v).withDensity (fun x ↦ ENNReal.ofReal (tiltWeight θ v x))
       = gaussianReal (-θ * v) v := by
-  -- Follow the paper plan above: steps 1 and 2 are `rw`s, step 3 is `congr` + `funext`,
-  -- step 4 is `gaussianPDFReal_mul_exp`. Measurability goals: `fun_prop`.
-   rw [gaussianReal_of_var_ne_zero 0 hv, gaussianReal_of_var_ne_zero (-θ * v) hv]
-   rw [← withDensity_mul _ (measurable_gaussianPDF _ _) (by fun_prop)]
-   congr 1
-   funext x
-   simp only [Pi.mul_apply, gaussianPDF, tiltWeight]
-   rw [← ENNReal.ofReal_mul (gaussianPDFReal_nonneg _ _ _)]
-   rw [gaussianPDFReal_mul_exp]
+      rw [gaussianReal_of_var_ne_zero 0 hv, gaussianReal_of_var_ne_zero (-θ * v) hv]
+      rw [← withDensity_mul _ (measurable_gaussianPDF _ _) (by fun_prop)]
+      congr 1
+      funext x
+      simp only [Pi.mul_apply, gaussianPDF, tiltWeight]
+      rw [← ENNReal.ofReal_mul (gaussianPDFReal_nonneg _ _ _)]
+      rw [gaussianPDFReal_mul_exp]
+
+/-- The Gaussian tilt for every variance. If `v = 0`, both sides are the point mass at `0`.
+Otherwise this is `gaussianReal_withDensity_exp`. -/
+lemma gaussianReal_withDensity_tiltWeight (θ : ℝ) (v : ℝ≥0) :
+    (gaussianReal 0 v).withDensity (fun x ↦ ENNReal.ofReal (tiltWeight θ v x))
+      = gaussianReal (-θ * v) v := by
+  by_cases hv : v = 0
+  · subst hv
+    simp [gaussianReal_zero_var, dirac_withDensity, tiltWeight]
+  · exact gaussianReal_withDensity_exp θ hv
 
 end Girsanov

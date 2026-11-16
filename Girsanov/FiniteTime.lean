@@ -95,16 +95,6 @@ lemma prod_tiltWeight (θ : ι → ℝ) (v : ι → ℝ≥0) (x : ι → ℝ) :
   rw [Finset.mul_sum, ← Finset.sum_neg_distrib, ← Finset.sum_sub_distrib]
   exact Finset.sum_congr rfl fun k _ ↦ by ring
 
-/-- The Gaussian tilt for every variance. If `v = 0`, both sides are the point mass at `0`.
-Otherwise this is `gaussianReal_withDensity_exp`. -/
-lemma gaussianReal_withDensity_tiltWeight (θ : ℝ) (v : ℝ≥0) :
-    (gaussianReal 0 v).withDensity (fun x ↦ ENNReal.ofReal (tiltWeight θ v x))
-      = gaussianReal (-θ * v) v := by
-  by_cases hv : v = 0
-  · subst hv
-    simp [gaussianReal_zero_var, dirac_withDensity, tiltWeight]
-  · exact gaussianReal_withDensity_exp θ hv
-
 variable {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω} [IsProbabilityMeasure P]
   {X : ι → Ω → ℝ}
 

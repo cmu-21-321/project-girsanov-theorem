@@ -47,7 +47,6 @@ noncomputable def Δt (k : Fin n) : ℝ≥0 :=
 
 /-- Two consecutive times are in order: `t_k < t_{k+1}`. -/
 lemma t_castSucc_lt_t_succ (k : Fin n) : g.t k.castSucc < g.t k.succ :=
-  -- If Lean complains here, use `(Fin.castSucc_lt_succ k)` or `(by simp [Fin.lt_def])`.
   g.strictMono (Fin.castSucc_lt_succ ..)
 
 /-- In `ℝ`, the increment `Δtₖ` is equal to `t_{k+1} - t_k`. -/

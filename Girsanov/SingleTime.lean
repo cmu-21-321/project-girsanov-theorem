@@ -1,4 +1,5 @@
 import Girsanov.Basic
+import Girsanov.GaussianTilt
 
 /-!
 # Girsanov at a single time
