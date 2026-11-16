@@ -54,22 +54,14 @@ theorem girsanov_gaussian_partialSum {X : Fin n → Ω → ℝ} (v : Fin n → �
         (Real.exp (-(∑ k, θ k * X k ω) - (1 / 2) * ∑ k, θ k ^ 2 * (v k : ℝ)))).map
         (fun ω ↦ Fin.partialSum fun k ↦ X k ω + θ k * (v k : ℝ))
       = P.map (fun ω ↦ Fin.partialSum fun k ↦ X k ω) := by
-  -- The increment vector and the shifted increment vector are measurable.
   have hY : Measurable fun ω k ↦ X k ω := measurable_pi_iff.2 hmeas
-  have hY' : Measurable fun ω k ↦ X k ω + θ k * (v k : ℝ) :=
-    measurable_pi_iff.2 fun k ↦ (hmeas k).add_const _
-  -- Step 1: Under `Q`, the shifted increments have the Gaussian product law.
-  have hQ := girsanov_gaussian_pi v hmeas hind hlaw θ
-  -- Step 2: Under `P`, the increments have the same product law.
-  have hP : P.map (fun ω k ↦ X k ω) = Measure.pi fun k ↦ gaussianReal 0 (v k) := by
-    rw [(iIndepFun_iff_map_fun_eq_pi_map fun k ↦ (hmeas k).aemeasurable).1 hind]
-    simp only [hlaw]
-  -- Step 3: The two increment vectors have the same law. Map both laws by `Fin.partialSum`.
-  have h := congrArg (Measure.map (Fin.partialSum : (Fin n → ℝ) → Fin (n + 1) → ℝ))
-    (hQ.trans hP.symm)
-  -- Step 4: Mapping by the increments and then by `Fin.partialSum` is mapping by the walk.
-  rw [Measure.map_map measurable_partialSum hY', Measure.map_map measurable_partialSum hY] at h
-  exact h
+  change (P.withDensity _).map (Fin.partialSum ∘ fun ω k ↦ X k ω + θ k * (v k : ℝ))
+    = P.map (Fin.partialSum ∘ fun ω k ↦ X k ω)
+  rw [← Measure.map_map measurable_partialSum (by fun_prop),
+    ← Measure.map_map measurable_partialSum hY,
+    girsanov_gaussian_pi v hmeas hind hlaw θ,
+    (iIndepFun_iff_map_fun_eq_pi_map fun k ↦ (hmeas k).aemeasurable).1 hind]
+  simp only [hlaw]
 
 /-- **Girsanov for the walk.** Under `Q`, the walk with the shifted increments
 `ΔW k + θ k * Δtₖ` has the law that the walk with the increments `ΔW k` has under `P`.
