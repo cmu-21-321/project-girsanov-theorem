@@ -66,7 +66,7 @@ theorem girsanov_gaussian_partialSum {X : Fin n → Ω → ℝ} (v : Fin n → �
 /-- **Girsanov for the walk.** Under `Q`, the walk with the shifted increments
 `ΔW k + θ k * Δtₖ` has the law that the walk with the increments `ΔW k` has under `P`.
 
-This is `girsanov_gaussian_partialSum` with the variances `Δtₖ` of the time grid. -/
+Use the above theorem but choose `vₖ = Δtₖ` -/
 theorem girsanov_walk (g : TimeGrid n) {ΔW : Fin n → Ω → ℝ} (hmeas : ∀ k, Measurable (ΔW k))
     (hind : iIndepFun ΔW P) (hlaw : ∀ k, P.map (ΔW k) = gaussianReal 0 (g.Δt k))
     (θ : Fin n → ℝ) :
@@ -75,8 +75,8 @@ theorem girsanov_walk (g : TimeGrid n) {ΔW : Fin n → Ω → ℝ} (hmeas : ∀
       = P.map (fun ω ↦ Fin.partialSum fun k ↦ ΔW k ω) :=
   girsanov_gaussian_partialSum g.Δt hmeas hind hlaw θ
 
-/-- **Example (θ = 0).** If the drift is `0`, then the Girsanov measure is `P`: nothing is
-reweighted and nothing is shifted. -/
+/-- Sanity Check: If there is with no drift, nothing is reweighted
+and the new measure Q is just P -/
 example (g : TimeGrid n) (ΔW : Fin n → Ω → ℝ) : girsanovMeasure P g 0 ΔW = P :=
   girsanovMeasure_zero g ΔW P
 
