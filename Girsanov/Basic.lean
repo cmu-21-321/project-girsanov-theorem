@@ -21,7 +21,7 @@ namespace Girsanov
 
 /-! ### Time grid -/
 
--- Author: Preme.
+-- Author: Preme
 
 /-- A time grid `0 = t₀ < t₁ < … < tₙ`. Each time is larger than the time before it. -/
 structure TimeGrid (n : ℕ) where

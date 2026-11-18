@@ -13,8 +13,7 @@ same law as the walk of the increments `ΔW k` under `P`.
 
 * `girsanov_gaussian_partialSum`: the self-contained version. It uses only Mathlib notions
   (`Measure.withDensity`, `gaussianReal`, `Fin.partialSum`) and any variances `vₖ ≥ 0`.
-* `girsanov_walk`: the version for a time grid. It is `girsanov_gaussian_partialSum` with
-  `vₖ = Δtₖ`.
+* `girsanov_walk`: the above theorem, with `vₖ = Δtₖ`.
 
 ## Plan for `girsanov_gaussian_partialSum`
 
@@ -24,14 +23,6 @@ same law as the walk of the increments `ΔW k` under `P`.
 3. So the two increment vectors have the same law. Map both laws by `Fin.partialSum`.
 4. Mapping by the increment vector and then by `Fin.partialSum` is mapping by the walk
    (`Measure.map_map`).
-
-## Step · Fact · Mathlib name
-
-* Step 1. Law of the shifted increments under `Q`: `girsanov_gaussian_pi` (Farin).
-* Step 2. `iIndepFun f μ ↔ μ.map (fun ω i ↦ f i ω) = Measure.pi fun i ↦ μ.map (f i)`:
-  `iIndepFun_iff_map_fun_eq_pi_map`.
-* Step 4. `(μ.map f).map g = μ.map (g ∘ f)` for measurable `f` and `g`: `Measure.map_map`.
-* Step 4. `Fin.partialSum` is measurable: `measurable_partialSum` (Girsanov/Basic.lean).
 -/
 
 open MeasureTheory ProbabilityTheory

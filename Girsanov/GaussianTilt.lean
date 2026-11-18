@@ -15,13 +15,14 @@ covariance `𝒩(-θ v, v)`. This lemma is used in the single-time theorem and g
 4. The real identity is `gaussianPDFReal_mul_exp`: complete the square,
    `-x²/(2v) - θx - θ²v/2 = -(x + θv)²/(2v)`.
 -/
+
 open MeasureTheory ProbabilityTheory
 open scoped ENNReal NNReal
 
 namespace Girsanov
 
 -- Author: Preme.
-/-- Completing the square: show that -x²/(2v) - θx - θ²v/2 = -(x + θv)²/(2v) -/
+/-- Show that -x²/(2v) - θx - θ²v/2 = -(x + θv)²/(2v) -/
 lemma gaussianPDFReal_mul_exp (θ : ℝ) (v : ℝ≥0) (x : ℝ) :
     gaussianPDFReal 0 v x * Real.exp (-θ * x - θ ^ 2 * (v : ℝ) / 2)
       = gaussianPDFReal (-θ * v) v x := by
@@ -34,7 +35,7 @@ lemma gaussianPDFReal_mul_exp (θ : ℝ) (v : ℝ≥0) (x : ℝ) :
     field_simp
     ring
 
-/-- Tilting `𝒩(0, v)` by `tiltWeight θ v` gives `𝒩(-θ v, v)`. -/
+/-- Multiplying `𝒩(0, v)` by `tiltWeight θ v` gives `𝒩(-θ v, v)`. -/
 lemma gaussianReal_withDensity_tiltWeight (θ : ℝ) (v : ℝ≥0) :
     (gaussianReal 0 v).withDensity (fun x ↦ ENNReal.ofReal (tiltWeight θ v x))
       = gaussianReal (-θ * v) v := by
