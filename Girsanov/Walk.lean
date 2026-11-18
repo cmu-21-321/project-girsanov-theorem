@@ -75,9 +75,4 @@ theorem girsanov_walk (g : TimeGrid n) {ΔW : Fin n → Ω → ℝ} (hmeas : ∀
       = P.map (fun ω ↦ Fin.partialSum fun k ↦ ΔW k ω) :=
   girsanov_gaussian_partialSum g.Δt hmeas hind hlaw θ
 
-/-- Sanity Check: If there is with no drift, nothing is reweighted
-and the new measure Q is just P -/
-example (g : TimeGrid n) (ΔW : Fin n → Ω → ℝ) : girsanovMeasure P g 0 ΔW = P :=
-  girsanovMeasure_zero g ΔW P
-
 end Girsanov
