@@ -56,10 +56,12 @@ theorem girsanov_gaussian_pi (v : ι → ℝ≥0) (hmeas : ∀ k, Measurable (X 
 
 ## Proved statements
 
-Last updated: 2026-11-12 (week 4). Update this list every week.
+Last updated: 2026-11-18 (week 5). Update this list every week.
 
 [Girsanov/Basic.lean](Girsanov/Basic.lean):
 
+- `TimeGrid.t_castSucc_lt_t_succ`, `TimeGrid.coe_Δt`, `TimeGrid.Δt_pos`, `TimeGrid.Δt_ne_zero`
+- `TimeGrid.sum_succ_sub_castSucc`, `TimeGrid.sum_Δt`, `TimeGrid.T_nonneg`
 - `measurable_girsanovDensity`
 - `girsanovDensity_pos`
 - `girsanovDensity_zero`
@@ -71,24 +73,22 @@ Last updated: 2026-11-12 (week 4). Update this list every week.
 - `girsanovDensity_eq_canonicalDensity_comp`
 - `girsanovDensity_eq_prod`
 - `measurable_partialSum`
-- `TimeGrid.Δt_pos`, `TimeGrid.sum_Δt`, `TimeGrid.T_nonneg`
 
 [Girsanov/GaussianTilt.lean](Girsanov/GaussianTilt.lean):
 
 - `gaussianPDFReal_mul_exp`
-- `gaussianReal_withDensity_exp`
+- `gaussianReal_withDensity_tiltWeight`
 
 [Girsanov/DensityTransfer.lean](Girsanov/DensityTransfer.lean):
 
-- `pi_withDensity`
+- `pi_withDensity` (with the private helper `indicator_univ_pi_prod`)
 
 [Girsanov/FiniteTime.lean](Girsanov/FiniteTime.lean):
 
 - `incrementLaw_withDensity`
-- `map_increments_eq_pi`
 - `prod_tiltWeight`
-- `gaussianReal_withDensity_tiltWeight`
 - `girsanov_gaussian_pi`
+- `map_increments_eq_pi`
 - `girsanov_increments`
 - example: `n = 1` agrees with the single-time theorem
 
@@ -96,7 +96,14 @@ Last updated: 2026-11-12 (week 4). Update this list every week.
 
 - `map_withDensity_comp`
 
-Every other statement is still `sorry`.
+[Girsanov/Walk.lean](Girsanov/Walk.lean):
+
+- `girsanov_gaussian_partialSum`
+- `girsanov_walk`
+- example: with `θ = 0`, the Girsanov measure is `P`
+
+Still `sorry`: `girsanov_single_time` and `isProbabilityMeasure_girsanovMeasure` in
+[Girsanov/SingleTime.lean](Girsanov/SingleTime.lean).
 
 ## Setup
 
@@ -164,17 +171,7 @@ opens a pull request if the update builds, or an issue if it doesn't. (Uncomment
 - To publish docs to GitHub Pages, set **Settings → Pages → Source** to "GitHub Actions" and
   uncomment the `docgen-action` line in `lean_action_ci.yml`.
 
-## Use of AI tools
+## AI use and collaboration
 
-Parts of this project were developed with the help of AI assistants (e.g. Claude by
-Anthropic). We used them to:
-
-- explain background mathematics and Lean/Mathlib concepts,
-- search Mathlib for relevant lemmas and check their current names and signatures,
-- draft Lean statements, proof outlines, and documentation, and
-- help with project setup and tooling (Lean, Lake, git).
-
-Every theorem statement in this repository was reviewed by a team member to confirm
-it says what we intend, and every proof is checked by Lean: the project builds with
-`lake build`, so no result depends on trusting an AI's output. Statements that are not
-yet proved are marked with `sorry`.
+See [AI_USE.md](AI_USE.md) for each team member's AI-use statement and
+[COLLABORATION.md](COLLABORATION.md) for each member's contributions.
