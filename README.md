@@ -27,7 +27,7 @@ theorem girsanov_increments (hmeas : ∀ k, Measurable (ΔW k)) (hind : iIndepFu
       = incrementLaw g
 ```
 
-Here `incrementLaw g = ⨂ₖ 𝒩(0, Δtₖ)`. Status: proved (week 4).
+Here `incrementLaw g = ⨂ₖ 𝒩(0, Δtₖ)`.
 
 It is a corollary of a self-contained version, `Girsanov.girsanov_gaussian_pi`, which uses only
 Mathlib notions (any finite index set, any variances `vₖ ≥ 0`, `Measure.withDensity` and
