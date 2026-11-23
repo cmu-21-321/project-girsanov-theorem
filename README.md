@@ -104,7 +104,6 @@ Last updated: 2026-11-18 (week 5). Update this list every week.
 
 - `girsanov_gaussian_partialSum`
 - `girsanov_walk`
-- example: with `θ = 0`, the Girsanov measure is `P`
 
 Still `sorry`: `girsanov_single_time` and `isProbabilityMeasure_girsanovMeasure` in
 [Girsanov/SingleTime.lean](Girsanov/SingleTime.lean).
