@@ -16,6 +16,10 @@ Under the new measure `Q`, the drifted increments `ΔWₖ + θₖ Δtₖ` are ag
 law `𝒩(0, Δtₖ)`. In other words, adding a drift to Brownian motion is the same as changing the
 measure.
 
+## Report
+
+The written report is [report/report.pdf](report/report.pdf).
+
 ## Principal theorem
 
 `Girsanov.girsanov_increments` in [Girsanov/FiniteTime.lean](Girsanov/FiniteTime.lean):
