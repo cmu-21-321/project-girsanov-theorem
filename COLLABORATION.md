@@ -36,8 +36,8 @@ described separately in [AI_USE.md](AI_USE.md).
 - **Documentation:** module docstrings and Step · Fact · Mathlib name lists in her files;
   weekly updates to the README's list of proved statements.
 - **Report:** set up the Overleaf project and LaTeX outline; wrote the abstract, §4, the
-  bibliography and the Acknowledgements; her paragraph of the Reflections.
-- **Video:** her segment on the n-step theorem and independence.
+  bibliography and the Acknowledgements; my paragraph of the Reflections.
+- **Video:** my segment on the n-step theorem and independence.
 - **Statements:** collected this collaboration statement and the AI-use statement.
 
 ### Joint work
