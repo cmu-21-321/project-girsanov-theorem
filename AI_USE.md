@@ -54,9 +54,16 @@ and proof plans, and reviewed each result.
 - Claude checked the video slides against the code for accuracy.
 
 ## Preme
+**Tools.** Claude (Anthropic) in web browser.
+Model: Claude Opus 5.5.
 
-TODO (Preme): tools used; what they were used for; files, definitions and theorems where AI
-generated or substantially rewrote code that remains; AI help with the report and video.
+**Code**
+- Helped refine/bounce back ideas in idea generation and design decision phases of the project. (I would criticize and question Claude, and it would refine its ideas until reaching conclusion)
+- Helped outline basic definitations, lemmas, and theorems, as well as approve proofs such that they were the most simple. 
+
+**Report and video.**
+- Help restructure second draft, with my discretion and HITL feedback for every text generation. Claude helped with LATEX formatting.
+- Created the HTML file and slideshow draft containing supportive visuals. Claude is good at creating beautiful HTML files, which made it more appealing and motivating when preparing the video script.
 
 ## Hagen
 

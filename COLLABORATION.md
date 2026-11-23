@@ -7,15 +7,12 @@ described separately in [AI_USE.md](AI_USE.md).
 ## Contributions
 
 ### Preme
+- **Overall:** in terms of code I worked mainly on 3 files: Basic.lean, GaussianTilt.lean, and Walk.lean. In terms of the report, I wrote the second draft and curated it to become more motivating for readers without financial derivative context, and to make it more concise. Lastly, I wrote the script and created an html file to help my teammates prepare for the video recording. 
 - **Definitions:** the time grid `TimeGrid` and the increments `Δt`, `girsanovDensity` and
   `girsanovMeasure` (`Girsanov/Basic.lean`).
 - **Proofs:** the time-grid lemmas (`coe_Δt`, `Δt_pos`, `sum_Δt`, `T_nonneg`, ...), the
   Gaussian tilt lemmas in `Girsanov/GaussianTilt.lean`, and `girsanov_gaussian_partialSum`
   and `girsanov_walk` in `Girsanov/Walk.lean`.
-- **Code and setup:** created the project files and renamed the template.
-- **Report:** §2 and §5.
-- **Video:** slides and script; her segment on the tilt lemma.
-- TODO (Preme): check and complete.
 
 ### Hagen
 - **Proofs:** the density API lemmas in `Girsanov/Basic.lean` (measurability, positivity,
