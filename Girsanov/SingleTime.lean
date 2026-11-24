@@ -17,7 +17,7 @@ measure is a probability measure.
 * Mass. `μ.withDensity f univ = ∫⁻ a, f a ∂μ`: `withDensity_apply _ MeasurableSet.univ`,
   then `Measure.restrict_univ`.
 * Tilt. `𝒩(0, T).withDensity (exp(-θ x - θ² T / 2)) = 𝒩(-θ T, T)`:
-  `gaussianReal_withDensity_exp` (Girsanov/GaussianTilt.lean, not written yet).
+  `gaussianReal_withDensity_tiltWeight` (Girsanov/GaussianTilt.lean).
 * Shift. `(gaussianReal μ v).map (· + y) = gaussianReal (μ + y) v`:
   `gaussianReal_map_add_const`.
 
@@ -72,7 +72,14 @@ theorem girsanov_single_time (P : Measure Ω) {W : Ω → ℝ} (hW : Measurable 
     (P.withDensity fun ω ↦ ENNReal.ofReal (Real.exp (-θ * W ω - θ ^ 2 * T / 2))).map
         (fun ω ↦ W ω + θ * T)
       = gaussianReal 0 T := by
-  sorry
+  -- The density is `f ∘ W` with `f = ofReal ∘ tiltWeight θ T`, and the shifted variable is
+  -- `(· + θ T) ∘ W`. Both are functions of `W`.
+  change (P.withDensity ((fun x ↦ ENNReal.ofReal (tiltWeight θ T x)) ∘ W)).map
+      ((· + θ * T) ∘ W) = _
+  -- (a) Map by `W` first, then shift. (b) Move the density to the law of `W`, which is
+  -- `𝒩(0, T)`. (c) The Gaussian tilt gives `𝒩(-θ T, T)`. (d) The shift recentres it at `0`.
+  rw [← Measure.map_map (by fun_prop) hW, map_withDensity_comp P hW (by fun_prop), hlaw,
+    gaussianReal_withDensity_tiltWeight, gaussianReal_map_add_const, neg_mul, neg_add_cancel]
 
 /-- For independent Gaussian increments, the Girsanov measure is a probability measure. -/
 theorem isProbabilityMeasure_girsanovMeasure {n : ℕ} (P : Measure Ω) [IsProbabilityMeasure P]
