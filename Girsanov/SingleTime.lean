@@ -46,12 +46,6 @@ cancels `exp(-c)`.
 open MeasureTheory ProbabilityTheory
 open scoped ENNReal NNReal
 
-#check @Measure.map_apply
-#check @setLIntegral_map
-#check @withDensity_apply
-#check @Measure.restrict_univ
-#check @gaussianReal_map_add_const
-
 namespace Girsanov
 
 variable {Ω α : Type*} [MeasurableSpace Ω] [MeasurableSpace α]
@@ -83,6 +77,15 @@ theorem girsanov_single_time (P : Measure Ω) {W : Ω → ℝ} (hW : Measurable 
   -- `𝒩(0, T)`. (c) The Gaussian tilt gives `𝒩(-θ T, T)`. (d) The shift recentres it at `0`.
   rw [← Measure.map_map (by fun_prop) hW, map_withDensity_comp P hW (by fun_prop), hlaw,
     gaussianReal_withDensity_tiltWeight, gaussianReal_map_add_const, neg_mul, neg_add_cancel]
+
+/-- **Example (θ = 0).** With no drift the density is `1` and the shift is `0`, so the left
+side of `girsanov_single_time` is the law of `W` under `P`. Thus for `θ = 0` the theorem says
+`P.map W = gaussianReal 0 T`, which is exactly the hypothesis `hlaw`. -/
+example (P : Measure Ω) (W : Ω → ℝ) (T : ℝ≥0) :
+    (P.withDensity fun ω ↦ ENNReal.ofReal (Real.exp (-0 * W ω - 0 ^ 2 * T / 2))).map
+        (fun ω ↦ W ω + 0 * T)
+      = P.map W := by
+  simp
 
 /-- For independent Gaussian increments, the Girsanov measure is a probability measure. -/
 theorem isProbabilityMeasure_girsanovMeasure {n : ℕ} (P : Measure Ω) [IsProbabilityMeasure P]
