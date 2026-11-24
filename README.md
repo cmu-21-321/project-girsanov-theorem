@@ -56,11 +56,11 @@ theorem girsanov_gaussian_pi (v : ι → ℝ≥0) (hmeas : ∀ k, Measurable (X 
 | [Girsanov/DensityTransfer.lean](Girsanov/DensityTransfer.lean) | Product densities on product measures (`pi_withDensity`) | Farin |
 | [Girsanov/SingleTime.lean](Girsanov/SingleTime.lean) | `map_withDensity_comp`, single-time Girsanov, `Q` is a probability measure | Hagen |
 | [Girsanov/FiniteTime.lean](Girsanov/FiniteTime.lean) | Factoring the density, law of the increments, `girsanov_increments` | Farin |
-| [Girsanov/GaussianTilt.lean](Girsanov/GaussianTilt.lean) | Gaussian tilt lemma `gaussianReal_withDensity_exp` | Preme |
+| [Girsanov/GaussianTilt.lean](Girsanov/GaussianTilt.lean) | Gaussian tilt lemma `gaussianReal_withDensity_tiltWeight` | Preme |
 
 ## Proved statements
 
-Last updated: 2026-11-18 (week 5). Update this list every week.
+Last updated: 2026-11-23 (final). Every statement below is proved; the project has no `sorry`.
 
 [Girsanov/Basic.lean](Girsanov/Basic.lean):
 
@@ -99,14 +99,14 @@ Last updated: 2026-11-18 (week 5). Update this list every week.
 [Girsanov/SingleTime.lean](Girsanov/SingleTime.lean):
 
 - `map_withDensity_comp`
+- `girsanov_single_time`
+- `isProbabilityMeasure_girsanovMeasure`
+- example: `θ = 0` reduces `girsanov_single_time` to the hypothesis on the law of `W`
 
 [Girsanov/Walk.lean](Girsanov/Walk.lean):
 
 - `girsanov_gaussian_partialSum`
 - `girsanov_walk`
-
-Still `sorry`: `girsanov_single_time` and `isProbabilityMeasure_girsanovMeasure` in
-[Girsanov/SingleTime.lean](Girsanov/SingleTime.lean).
 
 ## Setup
 

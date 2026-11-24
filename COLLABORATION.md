@@ -18,10 +18,11 @@ described separately in [AI_USE.md](AI_USE.md).
 - **Proofs:** the density API lemmas in `Girsanov/Basic.lean` (measurability, positivity,
   zero drift); the statements in `Girsanov/SingleTime.lean` and the proofs of
   `girsanov_single_time` and `isProbabilityMeasure_girsanovMeasure`.
-- **Documentation:** the README (goal, principal theorem, file map, proved statements).
+- **Documentation:** the README (goal, principal theorem, file map, proved statements);
+  the module docstring of `Girsanov/SingleTime.lean`.
 - **Report:** §1 and §3.
-- **Video:** TODO (opening segment, editing, upload?).
-- TODO (Hagen): check and complete.
+- **Video:** the opening segment and the single-time segment; editing and uploading the
+  final video.
 
 ### Farin Weinger
 - **Definitions:** `tiltWeight`, `canonicalDensity` and `incrementLaw` (`Girsanov/Basic.lean`).
