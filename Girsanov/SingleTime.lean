@@ -35,9 +35,12 @@ withDensity_apply _ hs, setLIntegral_map hs hf hX]`, and the two sides agree.
 
 ## Plan for `isProbabilityMeasure_girsanovMeasure`
 
-Use `girsanovDensity_eq_canonicalDensity_comp` and `map_withDensity_comp` to rewrite the
-total mass as `(incrementLaw g).withDensity (canonicalDensity g θ) univ`, then factor and
-tilt each coordinate as in `girsanov_increments`: each factor has mass `1`.
+The mgf route. Write the density as `exp(∑ₖ Xₖ) · exp(-c)` with `Xₖ = -θₖ ΔWₖ` and
+`c = ½ ∑ₖ θₖ² Δtₖ`. The total mass is `E_P[exp(∑ₖ Xₖ)] · exp(-c)` (`withDensity_apply`,
+`ofReal_integral_eq_lintegral_ofReal`). The `Xₖ` are independent (`iIndepFun.comp`), so
+the expectation is `∏ₖ mgf Xₖ 1` (`iIndepFun.mgf_sum`), and each factor is the Gaussian mgf
+`exp(θₖ² Δtₖ / 2)` (`mgf_const_mul`, `mgf_gaussianReal`). The product is `exp(c)`, which
+cancels `exp(-c)`.
 -/
 
 open MeasureTheory ProbabilityTheory
@@ -87,6 +90,35 @@ theorem isProbabilityMeasure_girsanovMeasure {n : ℕ} (P : Measure Ω) [IsProba
     (hind : iIndepFun ΔW P) (hlaw : ∀ k, P.map (ΔW k) = gaussianReal 0 (g.Δt k))
     (θ : Fin n → ℝ) :
     IsProbabilityMeasure (girsanovMeasure P g θ ΔW) := by
-  sorry
+  -- The exponent splits as `∑ₖ Xₖ - c`, with `Xₖ = -θₖ ΔWₖ` and `c = ½ ∑ₖ θₖ² Δtₖ`.
+  set X : Fin n → Ω → ℝ := fun k ω ↦ -θ k * ΔW k ω with hX
+  set c : ℝ := (1 / 2) * ∑ k, θ k ^ 2 * (g.Δt k : ℝ) with hc
+  have hXmeas : ∀ k, Measurable (X k) := fun k ↦ (hmeas k).const_mul _
+  have hXind : iIndepFun X P := hind.comp (fun k x ↦ -θ k * x) fun k ↦ by fun_prop
+  have hZ : girsanovDensity g θ ΔW = fun ω ↦ Real.exp (1 * (∑ k, X k) ω) * Real.exp (-c) := by
+    funext ω
+    rw [girsanovDensity, ← Real.exp_add, Finset.sum_apply, ← Finset.sum_neg_distrib]
+    simp only [hX, hc, one_mul, neg_mul, sub_eq_add_neg]
+  -- `exp(∑ₖ Xₖ)` is integrable: each `exp(Xₖ)` is, since `ΔWₖ` is Gaussian.
+  have hint : Integrable (fun ω ↦ Real.exp (1 * (∑ k, X k) ω)) P := by
+    refine hXind.integrable_exp_mul_sum hXmeas fun k _ ↦ ?_
+    have h := integrable_exp_mul_gaussianReal (μ := 0) (v := g.Δt k) (-θ k)
+    rw [← hlaw k] at h
+    simpa [hX, Function.comp_def, mul_assoc] using h.comp_measurable (hmeas k)
+  -- By independence, `E[exp(∑ₖ Xₖ)]` is the product of the Gaussian mgfs `exp(θₖ² Δtₖ / 2)`.
+  have hmgf : mgf (∑ k, X k) P 1 = Real.exp c := by
+    rw [hXind.mgf_sum hXmeas, hc, Finset.mul_sum, Real.exp_sum]
+    refine Finset.prod_congr rfl fun k _ ↦ ?_
+    rw [hX, mgf_const_mul, mgf_gaussianReal ⟨(hmeas k).aemeasurable, hlaw k⟩]
+    congr 1
+    ring
+  -- The total mass of `Q` is `E[exp(∑ₖ Xₖ)] · exp(-c) = exp(c) · exp(-c) = 1`.
+  constructor
+  rw [girsanovMeasure, withDensity_apply _ MeasurableSet.univ, Measure.restrict_univ,
+    ← ofReal_integral_eq_lintegral_ofReal
+      (by rw [hZ]; exact hint.mul_const _)
+      (Filter.Eventually.of_forall fun ω ↦ (girsanovDensity_pos g θ ΔW ω).le)]
+  rw [hZ, integral_mul_const, ← mgf, hmgf, ← Real.exp_add, add_neg_cancel, Real.exp_zero,
+    ENNReal.ofReal_one]
 
 end Girsanov
